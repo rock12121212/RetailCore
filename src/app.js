@@ -7,13 +7,18 @@ import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
 import { env } from './config/env.config.js';
-import { morganFormat } from './config/logger.config.js';
+import { morganFormat, morganStream } from './config/logger.config.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 import { rateLimiter } from './middlewares/rateLimit.middleware.js';
+import { requestIdMiddleware } from './middlewares/requestId.middleware.js';
 import rootRouter from './routes.js';
 import { API_PREFIX } from './utils/constants.js';
+import { logInfo } from './utils/logger.js';
 
 const app = express();
+
+// Request ID Middleware (should be first)
+app.use(requestIdMiddleware);
 
 // Security Middlewares
 app.use(helmet());
@@ -31,8 +36,8 @@ app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 app.use(express.static('public'));
 
-// Logging
-app.use(morgan(morganFormat));
+// Logging - HTTP request logging via morgan
+app.use(morgan(morganFormat, { stream: morganStream }));
 
 // Rate Limiting
 app.use(rateLimiter);
@@ -42,7 +47,13 @@ app.use(API_PREFIX, rootRouter);
 
 // Health Check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', uptime: process.uptime() });
+  logInfo('Health check', { requestId: req.id });
+  res.status(200).json({ 
+    status: 'OK', 
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    requestId: req.id,
+  });
 });
 
 // Error Handling
