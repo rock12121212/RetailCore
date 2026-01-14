@@ -4,7 +4,6 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
 import { env } from './config/env.config.js';
 import { morganFormat, morganStream } from './config/logger.config.js';
@@ -27,7 +26,6 @@ app.use(cors({
   credentials: true,
 }));
 app.use(cookieParser());
-app.use(mongoSanitize()); // Data sanitization against NoSQL query injection
 app.use(hpp()); // Prevent HTTP Parameter Pollution
 
 // Performance Middlewares
