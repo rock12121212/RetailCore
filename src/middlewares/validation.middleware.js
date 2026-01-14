@@ -19,7 +19,7 @@ export const validate = (validations) => {
         value: error.value,
       }));
 
-      throw new ApiError(400, 'Validation failed', errorMessages);
+      return next(new ApiError(400, 'Validation failed', errorMessages));
     }
 
     next();

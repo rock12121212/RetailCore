@@ -1,13 +1,33 @@
-// In a real app, this interacts with the User model
+import { User } from "../user/user.model.js";
+import { ApiError } from "../../utils/apiError.js";
+
 export const registerUser = async (userData) => {
-  // Placeholder for DB logic
-  return { ...userData, _id: 'dummy_id' };
+  const user = await User.findOne({
+    $or: [
+      { email: userData.email },
+      { username: userData.username },
+    ],
+  })
+
+  if (user) {
+    const isEmailDuplicate = user.email === userData.email;
+    const field = isEmailDuplicate ? 'email' : 'username';
+    throw new ApiError(400, `User with this ${field} already exists`, [
+      {
+        field,
+        message: `${field.charAt(0).toUpperCase() + field.slice(1)} is already taken`,
+      },
+    ]);
+  }
+
+  const newUser = await User.create(userData)
+
+  return newUser;
 };
 
 export const loginUser = async ({ email, password }) => {
-  // Placeholder for auth logic
-  return { 
-    user: { email, _id: 'dummy_id' }, 
-    accessToken: 'dummy_token' 
+  return {
+    user: { email, _id: 'dummy_id' },
+    accessToken: 'dummy_token'
   };
 };
