@@ -26,8 +26,22 @@ export const registerUser = async (userData) => {
 };
 
 export const loginUser = async ({ email, password }) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  const isPasswordValid = await user.isPasswordCorrect(password);
+
+  if (!isPasswordValid) {
+    throw new ApiError(401, 'Invalid password');
+  }
+
+  const accessToken = user.generateAccessToken();
+
   return {
-    user: { email, _id: 'dummy_id' },
-    accessToken: 'dummy_token'
+    user: { _id: user._id, email: user.email, username: user.username, role: user.role },
+    accessToken
   };
 };
