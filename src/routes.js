@@ -13,7 +13,6 @@ import subscriptionRoutes from './modules/subscription/subscription.routes.js';
 const router = Router();
 
 // Register module routes
-// add route
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/videos', videoRoutes);
