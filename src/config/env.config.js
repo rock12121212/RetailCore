@@ -7,7 +7,7 @@ dotenv.config();
  * Validates existence of environment variables.
  * If any of these are missing, the server should fail to start.
  */
-const requiredEnvVars = ['PORT', 'MONGODB_URI', 'JWT_SECRET', 'REFRESH_TOKEN_SECRET'];
+const requiredEnvVars = ['PORT', 'MONGODB_URI', 'JWT_SECRET'];
 const missingEnvVars = requiredEnvVars.filter((key) => !process.env[key]);
 
 if (missingEnvVars.length > 0) {
@@ -22,7 +22,7 @@ export const env = {
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-    refreshSecret: process.env.REFRESH_TOKEN_SECRET,
+    refreshSecret: process.env.REFRESH_TOKEN_SECRET || process.env.JWT_SECRET,
     refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '30d',
   },
   cors: {
