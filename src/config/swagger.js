@@ -75,8 +75,59 @@ export const swaggerSpec = {
           },
         },
         responses: {
-          200: { description: 'User logged in successfully' },
+          200: {
+            description: 'User logged in successfully (sets refreshToken and csrfToken cookies)',
+            content: {
+              'application/json': {
+                example: {
+                  statusCode: 200,
+                  data: {
+                    user: {
+                      _id: '64b9f6c0f0d5c1a1a1a1a1a1',
+                      username: 'john_doe',
+                      email: 'john@example.com',
+                    },
+                    accessToken: 'jwt_access_token_here',
+                    csrfToken: 'csrf_token_here',
+                  },
+                  message: 'User logged in successfully',
+                  success: true,
+                },
+              },
+            },
+          },
           401: { description: 'Invalid credentials' },
+        },
+      },
+    },
+    '/auth/refresh': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Refresh access token',
+        description: 'Rotates refresh token and sets refreshToken and csrfToken cookies',
+        responses: {
+          200: {
+            description: 'Access token refreshed successfully',
+            content: {
+              'application/json': {
+                example: {
+                  statusCode: 200,
+                  data: {
+                    user: {
+                      _id: '64b9f6c0f0d5c1a1a1a1a1a1',
+                      username: 'john_doe',
+                      email: 'john@example.com',
+                    },
+                    accessToken: 'jwt_access_token_here',
+                    csrfToken: 'csrf_token_here',
+                  },
+                  message: 'Access token refreshed successfully',
+                  success: true,
+                },
+              },
+            },
+          },
+          401: { description: 'Invalid refresh token' },
         },
       },
     },
@@ -84,6 +135,7 @@ export const swaggerSpec = {
       post: {
         tags: ['Auth'],
         summary: 'Logout user',
+        description: 'Clears refreshToken and csrfToken cookies',
         responses: {
           200: { description: 'User logged out successfully' },
         },

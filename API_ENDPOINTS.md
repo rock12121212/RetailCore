@@ -14,7 +14,14 @@
 
 - POST {{baseUrl}}auth/register
 - POST {{baseUrl}}auth/login
+- POST {{baseUrl}}auth/refresh
 - POST {{baseUrl}}auth/logout
+
+### Auth Cookies
+
+- `refreshToken` (httpOnly) is set on login/refresh and cleared on logout.
+- `csrfToken` is set on login/refresh and should be sent by the client with
+  state-changing requests if CSRF checks are enabled.
 
 ## Users
 
