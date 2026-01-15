@@ -4,10 +4,13 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import hpp from 'hpp';
+import swaggerUi from 'swagger-ui-express';
 import { env } from './config/env.config.js';
+import { swaggerSpec } from './config/swagger.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 import { rateLimiter } from './middlewares/rateLimit.middleware.js';
 import { requestIdMiddleware } from './middlewares/requestId.middleware.js';
+import { requestLogger } from './middlewares/requestLogger.middleware.js';
 import rootRouter from './routes.js';
 import { API_PREFIX } from './utils/constants.js';
 
@@ -25,6 +28,9 @@ app.use(cors({
 app.use(cookieParser());
 app.use(hpp()); // Prevent HTTP Parameter Pollution
 
+// Request Logging
+app.use(requestLogger);
+
 // Performance Middlewares
 app.use(compression());
 app.use(express.json({ limit: '16kb' }));
@@ -33,6 +39,9 @@ app.use(express.static('public'));
 
 // Rate Limiting
 app.use(rateLimiter);
+
+// Swagger Docs
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use(API_PREFIX, rootRouter);

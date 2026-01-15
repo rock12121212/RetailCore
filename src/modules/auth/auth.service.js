@@ -1,5 +1,6 @@
 import { User } from "../user/user.model.js";
 import { ApiError } from "../../utils/apiError.js";
+import { UserDto } from "../../dtos/user.dto.js";
 
 export const registerUser = async (userData) => {
   const user = await User.findOne({
@@ -20,9 +21,8 @@ export const registerUser = async (userData) => {
     ]);
   }
 
-  const newUser = await User.create(userData)
-
-  return newUser;
+  const newUser = await User.create(userData);
+  return UserDto.from(newUser);
 };
 
 export const loginUser = async ({ email, password }) => {
@@ -41,7 +41,7 @@ export const loginUser = async ({ email, password }) => {
   const accessToken = user.generateAccessToken();
 
   return {
-    user: { _id: user._id, email: user.email, username: user.username, role: user.role },
-    accessToken
+    user: UserDto.from(user),
+    accessToken,
   };
 };

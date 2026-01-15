@@ -5,6 +5,10 @@ import { env } from '../../config/env.config.js';
 
 const userSchema = new mongoose.Schema(
   {
+    fullName: {
+      type: String,
+      trim: true,
+    },
     username: {
       type: String,
       required: true,
@@ -20,14 +24,20 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    avatar: {
+      type: String,
+      trim: true,
+    },
+    coverImage: {
+      type: String,
+      trim: true,
+    },
     password: {
       type: String,
       required: [true, 'Password is required'],
     },
-    role: {
+    refreshToken: {
       type: String,
-      enum: ['ADMIN', 'USER'],
-      default: 'USER',
     },
   },
   {
@@ -50,7 +60,6 @@ userSchema.methods.generateAccessToken = function () {
       _id: this._id,
       email: this.email,
       username: this.username,
-      role: this.role,
     },
     env.jwt.secret,
     {

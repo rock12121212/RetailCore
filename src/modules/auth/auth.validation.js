@@ -4,6 +4,12 @@ import { body } from 'express-validator';
  * @description Validation rules for user registration
  */
 export const validateRegister = [
+  body('fullName')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 80 })
+    .withMessage('Full name must be between 2 and 80 characters'),
+
   body('username')
     .trim()
     .notEmpty()
