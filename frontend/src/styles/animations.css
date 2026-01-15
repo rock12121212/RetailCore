@@ -1,0 +1,31 @@
+@keyframes floatY {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 0 rgba(31, 111, 235, 0.2);
+  }
+  50% {
+    box-shadow: 0 25px 45px rgba(31, 111, 235, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(31, 111, 235, 0.2);
+  }
+}
+
+.floaty {
+  animation: floatY 6s ease-in-out infinite;
+}
+
+.glow-card {
+  animation: glowPulse 8s ease-in-out infinite;
+}
