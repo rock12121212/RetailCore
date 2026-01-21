@@ -7,6 +7,7 @@ import Tweets from './pages/Tweets.jsx';
 import Playlists from './pages/Playlists.jsx';
 import Subscriptions from './pages/Subscriptions.jsx';
 import Profile from './pages/Profile.jsx';
+import VideoDetail from './pages/VideoDetail.jsx';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
 import AppShell from './layout/AppShell.jsx';
 import { useAuth } from './hooks/useAuth.js';
@@ -33,6 +34,7 @@ function App() {
       >
         <Route index element={<Home />} />
         <Route path="videos" element={<Videos />} />
+        <Route path="videos/:videoId" element={<VideoDetail />} />
         <Route path="tweets" element={<Tweets />} />
         <Route path="playlists" element={<Playlists />} />
         <Route path="subscriptions" element={<Subscriptions />} />

@@ -7,6 +7,10 @@ export class CommentDto {
     this.content = data.content;
     this.video = data.video;
     this.owner = data.owner;
+    this.likesCount = data.likesCount || 0;
+    this.repliesCount = data.repliesCount || 0;
+    this.isLiked = !!data.isLiked;
+    this.parentComment = data.parentComment || null;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }

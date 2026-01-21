@@ -8,7 +8,12 @@ export class VideoDto {
     this.description = data.description;
     this.videoFile = data.videoFile;
     this.thumbnail = data.thumbnail;
-    this.owner = data.owner;
+    this.owner = data.owner?._id ? {
+      _id: data.owner._id,
+      username: data.owner.username,
+      fullName: data.owner.fullName,
+      avatar: data.owner.avatar,
+    } : data.owner;
     this.views = data.views;
     this.duration = data.duration;
     this.isPublished = data.isPublished;

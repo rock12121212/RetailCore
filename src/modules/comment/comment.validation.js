@@ -15,3 +15,12 @@ export const validateCreateComment = [
     .isMongoId()
     .withMessage('Video ID must be a valid ID'),
 ];
+
+export const validateAddReply = [
+  body('content')
+    .trim()
+    .notEmpty()
+    .withMessage('Content is required')
+    .isLength({ max: 2000 })
+    .withMessage('Content can be at most 2000 characters'),
+];

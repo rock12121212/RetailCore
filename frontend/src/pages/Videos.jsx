@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -19,6 +20,7 @@ import EmptyState from '../components/EmptyState.jsx';
 import { createVideo, listVideos } from '../api/videos.js';
 
 const Videos = () => {
+  const navigate = useNavigate();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -83,9 +85,11 @@ const Videos = () => {
         {videos.map((video) => (
           <Grid item xs={12} md={6} lg={4} key={video._id || video.id}>
             <Card
+              onClick={() => navigate(`/videos/${video._id}`)}
               sx={{
                 height: '100%',
                 borderRadius: 3,
+                cursor: 'pointer',
                 boxShadow: '0 16px 30px rgba(15, 23, 42, 0.12)',
                 transition: 'transform 0.25s ease, box-shadow 0.25s ease',
                 '&:hover': {

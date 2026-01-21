@@ -25,7 +25,9 @@ export const createVideo = asyncHandler(async (req, res) => {
 });
 
 export const listVideos = asyncHandler(async (req, res) => {
-  const videos = await Video.find().sort({ createdAt: -1 });
+  const videos = await Video.find()
+    .populate('owner', 'username email fullName avatar')
+    .sort({ createdAt: -1 });
 
   return res
     .status(200)
@@ -34,6 +36,7 @@ export const listVideos = asyncHandler(async (req, res) => {
 
 export const getVideoById = asyncHandler(async (req, res) => {
   const video = await findByIdOrThrow(Video, req.params.id, 'Video not found');
+  await video.populate('owner', 'username email fullName avatar');
 
   return res
     .status(200)

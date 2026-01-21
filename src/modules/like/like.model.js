@@ -26,12 +26,11 @@ const likeSchema = new mongoose.Schema(
   }
 );
 
-likeSchema.pre('validate', function (next) {
+likeSchema.pre('validate', async function () {
   const targets = [this.video, this.comment, this.tweet].filter(Boolean);
   if (targets.length !== 1) {
-    return next(new Error('Like must reference exactly one target'));
+    throw new Error('Like must reference exactly one target');
   }
-  return next();
 });
 
 export const Like = mongoose.model('Like', likeSchema);
