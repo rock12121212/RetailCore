@@ -51,13 +51,32 @@ export const createVideo = asyncHandler(async (req, res) => {
 });
 
 export const listVideos = asyncHandler(async (req, res) => {
-  const videos = await Video.find()
-    .populate('owner', 'username email fullName avatar')
-    .sort({ createdAt: -1 });
+  const page = Math.max(parseInt(req.query.page) || 1, 1);
+  const limit = Math.min(parseInt(req.query.limit) || 10, 100);
+  const skip = (page - 1) * limit;
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, VideoDto.fromList(videos), 'Videos fetched successfully'));
+  const [videos, total] = await Promise.all([
+    Video.find()
+      .populate('owner', 'username email fullName avatar')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Video.countDocuments()
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      items: VideoDto.fromList(videos),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNext: page * limit < total,
+        hasPrev: page > 1
+      }
+    }, 'Videos fetched successfully')
+  );
 });
 
 export const getVideoById = asyncHandler(async (req, res) => {
