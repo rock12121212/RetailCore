@@ -4,17 +4,43 @@ import { ApiError } from '../../utils/apiError.js';
 import { Video } from './video.model.js';
 import { VideoDto } from '../../dtos/video.dto.js';
 import { pickDefined } from '../../utils/object.js';
-import { deleteOwnedById, findByIdOrThrow, updateOwnedById } from '../../utils/crud.js';
+import { uploadOnCloudinary, deleteFromCloudinary } from '../../utils/cloudinary.js';
+import {
+  deleteOwnedById,
+  ensureOwner,
+  findByIdOrThrow,
+  updateOwnedById,
+} from '../../utils/crud.js';
 
 export const createVideo = asyncHandler(async (req, res) => {
-  const { title, description, videoFile, thumbnail, duration, isPublished } = req.body;
+  const { title, description, isPublished } = req.body;
+
+  const videoFileLocalPath = req.files?.videoFile?.[0]?.path;
+  const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
+
+  if (!videoFileLocalPath) {
+    throw new ApiError(400, 'Video file is required');
+  }
+
+  const videoFile = await uploadOnCloudinary(videoFileLocalPath);
+  if (!videoFile) {
+    throw new ApiError(500, 'Failed to upload video file');
+  }
+
+  let thumbnail = '';
+  if (thumbnailLocalPath) {
+    const uploadedThumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+    if (uploadedThumbnail) {
+      thumbnail = uploadedThumbnail.url;
+    }
+  }
 
   const video = await Video.create({
     title,
     description,
-    videoFile,
-    thumbnail,
-    duration,
+    videoFile: videoFile.url,
+    thumbnail: thumbnail || videoFile.url.replace(/\.[^/.]+$/, '.jpg'), // Fallback to video auto-gen thumbnail if possible
+    duration: videoFile.duration,
     isPublished,
     owner: req.user._id,
   });
@@ -44,14 +70,25 @@ export const getVideoById = asyncHandler(async (req, res) => {
 });
 
 export const updateVideo = asyncHandler(async (req, res) => {
-  const updates = pickDefined(req.body, [
-    'title',
-    'description',
-    'videoFile',
-    'thumbnail',
-    'duration',
-    'isPublished',
-  ]);
+  const updates = pickDefined(req.body, ['title', 'description', 'isPublished']);
+
+  const videoFileLocalPath = req.files?.videoFile?.[0]?.path;
+  const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
+
+  if (videoFileLocalPath) {
+    const videoFile = await uploadOnCloudinary(videoFileLocalPath);
+    if (videoFile) {
+      updates.videoFile = videoFile.url;
+      updates.duration = videoFile.duration;
+    }
+  }
+
+  if (thumbnailLocalPath) {
+    const uploadedThumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+    if (uploadedThumbnail) {
+      updates.thumbnail = uploadedThumbnail.url;
+    }
+  }
 
   if (Object.keys(updates).length === 0) {
     throw new ApiError(400, 'No valid fields provided for update');
@@ -67,11 +104,24 @@ export const updateVideo = asyncHandler(async (req, res) => {
 });
 
 export const deleteVideo = asyncHandler(async (req, res) => {
-  await deleteOwnedById(Video, req.params.id, req.user._id, {
-    notFoundMessage: 'Video not found',
-  });
+  const video = await findByIdOrThrow(Video, req.params.id, 'Video not found');
+  ensureOwner(video, req.user._id);
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, {}, 'Video deleted successfully'));
+  // Extract public IDs from Cloudinary URLs
+  // Note: This logic assumes public IDs don't contain slashes or complex paths
+  const getPublicId = (url) => url?.split('/').pop().split('.')[0];
+
+  if (video.videoFile) {
+    const videoPublicId = getPublicId(video.videoFile);
+    await deleteFromCloudinary(videoPublicId, 'video');
+  }
+
+  if (video.thumbnail) {
+    const thumbnailPublicId = getPublicId(video.thumbnail);
+    await deleteFromCloudinary(thumbnailPublicId, 'image');
+  }
+
+  await video.deleteOne();
+
+  return res.status(200).json(new ApiResponse(200, {}, 'Video deleted successfully'));
 });

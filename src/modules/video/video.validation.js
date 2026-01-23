@@ -7,17 +7,10 @@ export const validateCreateVideo = [
     .withMessage('Title is required'),
 
   body('videoFile')
-    .trim()
-    .notEmpty()
-    .withMessage('Video file URL is required')
-    .isURL()
-    .withMessage('Video file must be a valid URL'),
+    .optional(),
 
   body('thumbnail')
-    .optional()
-    .trim()
-    .isURL()
-    .withMessage('Thumbnail must be a valid URL'),
+    .optional(),
 
   body('description')
     .optional()
@@ -44,16 +37,10 @@ export const validateUpdateVideo = [
     .withMessage('Title cannot be empty'),
 
   body('videoFile')
-    .optional()
-    .trim()
-    .isURL()
-    .withMessage('Video file must be a valid URL'),
+    .optional(),
 
   body('thumbnail')
-    .optional()
-    .trim()
-    .isURL()
-    .withMessage('Thumbnail must be a valid URL'),
+    .optional(),
 
   body('description')
     .optional()

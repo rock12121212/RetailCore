@@ -3,6 +3,8 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 import { ApiResponse } from '../../utils/apiResponse.js';
 import { env } from '../../config/env.config.js';
 import * as authService from './auth.service.js';
+import { uploadOnCloudinary } from '../../utils/cloudinary.js';
+import { ApiError } from '../../utils/apiError.js';
 
 const isProd = env.nodeEnv === 'production';
 
@@ -57,9 +59,35 @@ const clearAuthCookies = (res) => {
 };
 
 export const register = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, fullName } = req.body;
 
-  const user = await authService.registerUser({ username, email, password });
+  const avatarLocalPath = req.files?.avatar?.[0]?.path;
+  const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
+
+  let avatar = '';
+  if (avatarLocalPath) {
+    const uploadedAvatar = await uploadOnCloudinary(avatarLocalPath);
+    if (uploadedAvatar) {
+      avatar = uploadedAvatar.url;
+    }
+  }
+
+  let coverImage = '';
+  if (coverImageLocalPath) {
+    const uploadedCoverImage = await uploadOnCloudinary(coverImageLocalPath);
+    if (uploadedCoverImage) {
+      coverImage = uploadedCoverImage.url;
+    }
+  }
+
+  const user = await authService.registerUser({
+    username,
+    email,
+    password,
+    fullName,
+    avatar,
+    coverImage,
+  });
 
   return res
     .status(201)

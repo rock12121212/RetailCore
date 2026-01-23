@@ -18,13 +18,20 @@ const Register = () => {
     username: '',
     email: '',
     password: '',
+    fullName: '',
+    avatar: null,
+    coverImage: null,
   });
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
+    const { name, value, files } = event.target;
+    if (files) {
+      setFormState((prev) => ({ ...prev, [name]: files[0] }));
+    } else {
+      setFormState((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -32,7 +39,14 @@ const Register = () => {
     setStatus({ type: '', message: '' });
     setLoading(true);
     try {
-      await registerApi(formState);
+      const formData = new FormData();
+      Object.keys(formState).forEach((key) => {
+        if (formState[key]) {
+          formData.append(key, formState[key]);
+        }
+      });
+
+      await registerApi(formData);
       navigate('/login', {
         replace: true,
         state: { success: 'Account created. Please sign in.' },
@@ -111,6 +125,39 @@ const Register = () => {
                   required
                   fullWidth
                 />
+                <TextField
+                  label="Full Name"
+                  name="fullName"
+                  value={formState.fullName}
+                  onChange={handleChange}
+                  fullWidth
+                />
+                <Stack direction="row" spacing={2}>
+                  <Button variant="outlined" component="label" fullWidth>
+                    Upload Avatar
+                    <input type="file" name="avatar" hidden onChange={handleChange} accept="image/*" />
+                  </Button>
+                  <Button variant="outlined" component="label" fullWidth>
+                    Upload Cover
+                    <input
+                      type="file"
+                      name="coverImage"
+                      hidden
+                      onChange={handleChange}
+                      accept="image/*"
+                    />
+                  </Button>
+                </Stack>
+                {formState.avatar && (
+                  <Typography variant="caption" color="text.secondary">
+                    Avatar: {formState.avatar.name}
+                  </Typography>
+                )}
+                {formState.coverImage && (
+                  <Typography variant="caption" color="text.secondary">
+                    Cover: {formState.coverImage.name}
+                  </Typography>
+                )}
                 <Button type="submit" variant="contained" size="large" disabled={loading}>
                   {loading ? 'Creating account...' : 'Create account'}
                 </Button>

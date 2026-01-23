@@ -6,6 +6,7 @@ export const getCurrentUser = async () => {
 };
 
 export const updateProfile = async (payload) => {
+  // If payload is FormData, axios will automatically set the correct headers
   const response = await apiClient.patch('/users/profile', payload);
   return response.data?.data || response.data;
 };

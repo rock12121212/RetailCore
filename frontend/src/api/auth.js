@@ -17,6 +17,7 @@ export const login = async (payload) => {
 };
 
 export const register = async (payload) => {
+  // If payload is FormData, axios will automatically set the correct headers
   const response = await authClient.post('/auth/register', payload);
   return unwrap(response);
 };

@@ -26,14 +26,8 @@ export const validateUpdateProfile = [
     .normalizeEmail(),
 
   body('avatar')
-    .optional()
-    .trim()
-    .isURL()
-    .withMessage('Avatar must be a valid URL'),
+    .optional(),
 
   body('coverImage')
-    .optional()
-    .trim()
-    .isURL()
-    .withMessage('Cover image must be a valid URL'),
+    .optional(),
 ];
